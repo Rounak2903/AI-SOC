@@ -1,9 +1,10 @@
 // =========================================================
 // SOC Dashboard - app.js
 // Phase 1: UI wired up with DUMMY data only.
-// Phase 4 (later): replace getDummyData() calls with real
-// REST API calls to Krushna's backend. Nothing else in this
-// file's structure should need to change when that happens.
+// Phase 4 (later): replace getDummy*() calls with real
+// REST API calls to Krushna's backend. Render functions and
+// data shape are written to match a typical REST response,
+// so swapping the data source is the only change needed.
 // =========================================================
 
 // ---- Dummy data (stand-in for backend response) ----
@@ -42,18 +43,63 @@ function getDummyIncidents() {
   ];
 }
 
+// ---- Small utility: animate a number from its current value to a target ----
+function animateValue(el, from, to, duration = 700) {
+  const start = performance.now();
+  const isInt = Number.isInteger(to);
+
+  function tick(now) {
+    const progress = Math.min((now - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+    const current = from + (to - from) * eased;
+    el.textContent = isInt
+      ? Math.round(current).toLocaleString()
+      : current.toFixed(1);
+    if (progress < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+function getCurrentNumber(el) {
+  const n = parseInt(el.textContent.replace(/,/g, ""), 10);
+  return Number.isNaN(n) ? 0 : n;
+}
+
 // ---- Render helpers ----
 function renderSummary() {
   const summary = getDummySummary();
 
-  document.getElementById("totalEvents").textContent = summary.totalEvents.toLocaleString();
-  document.getElementById("activeAlerts").textContent = summary.activeAlerts;
-  document.getElementById("criticalIncidents").textContent = summary.criticalIncidents;
+  const totalEl = document.getElementById("totalEvents");
+  const alertsEl = document.getElementById("activeAlerts");
+  const criticalEl = document.getElementById("criticalIncidents");
 
-  document.getElementById("sevCritical").textContent = summary.severity.critical;
-  document.getElementById("sevHigh").textContent = summary.severity.high;
-  document.getElementById("sevMedium").textContent = summary.severity.medium;
-  document.getElementById("sevLow").textContent = summary.severity.low;
+  animateValue(totalEl, getCurrentNumber(totalEl), summary.totalEvents);
+  animateValue(alertsEl, getCurrentNumber(alertsEl), summary.activeAlerts);
+  animateValue(criticalEl, getCurrentNumber(criticalEl), summary.criticalIncidents);
+
+  const sevMap = [
+    ["sevCritical", "sevCriticalBar", summary.severity.critical],
+    ["sevHigh", "sevHighBar", summary.severity.high],
+    ["sevMedium", "sevMediumBar", summary.severity.medium],
+    ["sevLow", "sevLowBar", summary.severity.low],
+  ];
+
+  const maxSeverity = Math.max(
+    summary.severity.critical,
+    summary.severity.high,
+    summary.severity.medium,
+    summary.severity.low
+  );
+
+  sevMap.forEach(([valueId, barId, value]) => {
+    const valueEl = document.getElementById(valueId);
+    animateValue(valueEl, getCurrentNumber(valueEl), value);
+    const barEl = document.getElementById(barId);
+    const pct = maxSeverity ? Math.round((value / maxSeverity) * 100) : 0;
+    requestAnimationFrame(() => {
+      barEl.style.width = pct + "%";
+    });
+  });
 }
 
 function renderAlertsTable() {
@@ -90,15 +136,33 @@ function renderIncidentsTable() {
   });
 }
 
+function updateLastSync() {
+  document.getElementById("lastSync").textContent = "just now";
+}
+
 function loadDashboard() {
   renderSummary();
   renderAlertsTable();
   renderIncidentsTable();
+  updateLastSync();
 }
 
+// ---- Live clock in sidebar ----
+function tickClock() {
+  const clockEl = document.getElementById("clock");
+  if (!clockEl) return;
+  const now = new Date();
+  clockEl.textContent = now.toLocaleTimeString("en-GB", { hour12: false });
+}
+tickClock();
+setInterval(tickClock, 1000);
+
 // ---- Refresh button ----
-document.getElementById("refreshBtn").addEventListener("click", () => {
+const refreshBtn = document.getElementById("refreshBtn");
+refreshBtn.addEventListener("click", () => {
+  refreshBtn.classList.add("spinning");
   loadDashboard();
+  setTimeout(() => refreshBtn.classList.remove("spinning"), 400);
 });
 
 // ---- Initial load ----
