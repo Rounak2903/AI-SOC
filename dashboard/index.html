@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SOC Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1>SOC Dashboard</h1>
+    <button id="refreshBtn" class="refresh-btn">Refresh</button>
+  </header>
+
+  <main class="dashboard">
+    <!-- Top summary cards -->
+    <section class="summary-cards">
+      <div class="card">
+        <span class="card-label">Total Events</span>
+        <span class="card-value" id="totalEvents">--</span>
+      </div>
+      <div class="card">
+        <span class="card-label">Active Alerts</span>
+        <span class="card-value" id="activeAlerts">--</span>
+      </div>
+      <div class="card">
+        <span class="card-label">Critical Incidents</span>
+        <span class="card-value" id="criticalIncidents">--</span>
+      </div>
+    </section>
+
+    <!-- Severity breakdown -->
+    <section class="severity-section">
+      <h2>Severity Breakdown</h2>
+      <div class="severity-cards">
+        <div class="severity-card critical">
+          <span class="severity-label">Critical</span>
+          <span class="severity-value" id="sevCritical">--</span>
+        </div>
+        <div class="severity-card high">
+          <span class="severity-label">High</span>
+          <span class="severity-value" id="sevHigh">--</span>
+        </div>
+        <div class="severity-card medium">
+          <span class="severity-label">Medium</span>
+          <span class="severity-value" id="sevMedium">--</span>
+        </div>
+        <div class="severity-card low">
+          <span class="severity-label">Low</span>
+          <span class="severity-value" id="sevLow">--</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Recent Alerts -->
+    <section class="table-section">
+      <h2>Recent Alerts</h2>
+      <table id="alertsTable">
+        <thead>
+          <tr>
+            <th>Alert ID</th>
+            <th>Alert Type</th>
+            <th>Severity</th>
+            <th>Source IP</th>
+          </tr>
+        </thead>
+        <tbody id="alertsTableBody">
+          <!-- rows injected by app.js -->
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Recent Incidents -->
+    <section class="table-section">
+      <h2>Recent Incidents</h2>
+      <table id="incidentsTable">
+        <thead>
+          <tr>
+            <th>Incident ID</th>
+            <th>Incident Type</th>
+            <th>Severity</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="incidentsTableBody">
+          <!-- rows injected by app.js -->
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
