@@ -3,91 +3,150 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SOC Dashboard</title>
+  <title>SOC Command // AI-SOC</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <header class="topbar">
-    <h1>SOC Dashboard</h1>
-    <button id="refreshBtn" class="refresh-btn">Refresh</button>
-  </header>
+  <div class="scanlines"></div>
 
-  <main class="dashboard">
-    <!-- Top summary cards -->
-    <section class="summary-cards">
-      <div class="card">
-        <span class="card-label">Total Events</span>
-        <span class="card-value" id="totalEvents">--</span>
+  <div class="shell">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-mark">◆</span>
+        <span class="brand-text">AI&#8209;SOC</span>
       </div>
-      <div class="card">
-        <span class="card-label">Active Alerts</span>
-        <span class="card-value" id="activeAlerts">--</span>
+      <nav class="sidenav">
+        <a class="nav-item active"><span class="nav-icon">▣</span>Overview</a>
+        <a class="nav-item"><span class="nav-icon">▲</span>Alerts</a>
+        <a class="nav-item"><span class="nav-icon">◉</span>Incidents</a>
+        <a class="nav-item"><span class="nav-icon">☰</span>Events</a>
+        <a class="nav-item"><span class="nav-icon">✦</span>AI Reports</a>
+      </nav>
+      <div class="sidebar-status">
+        <div class="status-row">
+          <span class="dot dot-live"></span>
+          <span>Feed dummy&#8209;data</span>
+        </div>
+        <div class="status-row muted" id="clock">--:--:--</div>
       </div>
-      <div class="card">
-        <span class="card-label">Critical Incidents</span>
-        <span class="card-value" id="criticalIncidents">--</span>
-      </div>
-    </section>
+    </aside>
 
-    <!-- Severity breakdown -->
-    <section class="severity-section">
-      <h2>Severity Breakdown</h2>
-      <div class="severity-cards">
-        <div class="severity-card critical">
-          <span class="severity-label">Critical</span>
-          <span class="severity-value" id="sevCritical">--</span>
+    <!-- Main -->
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-title">
+          <h1>Security Operations</h1>
+          <p class="subtitle">Real&#8209;time threat monitoring &mdash; dashboard v1</p>
         </div>
-        <div class="severity-card high">
-          <span class="severity-label">High</span>
-          <span class="severity-value" id="sevHigh">--</span>
+        <div class="topbar-actions">
+          <span class="last-updated">Last sync <span id="lastSync">just now</span></span>
+          <button id="refreshBtn" class="refresh-btn">
+            <span class="refresh-icon">⟳</span> Refresh
+          </button>
         </div>
-        <div class="severity-card medium">
-          <span class="severity-label">Medium</span>
-          <span class="severity-value" id="sevMedium">--</span>
-        </div>
-        <div class="severity-card low">
-          <span class="severity-label">Low</span>
-          <span class="severity-value" id="sevLow">--</span>
-        </div>
-      </div>
-    </section>
+      </header>
 
-    <!-- Recent Alerts -->
-    <section class="table-section">
-      <h2>Recent Alerts</h2>
-      <table id="alertsTable">
-        <thead>
-          <tr>
-            <th>Alert ID</th>
-            <th>Alert Type</th>
-            <th>Severity</th>
-            <th>Source IP</th>
-          </tr>
-        </thead>
-        <tbody id="alertsTableBody">
-          <!-- rows injected by app.js -->
-        </tbody>
-      </table>
-    </section>
+      <main class="dashboard">
+        <!-- Top summary cards -->
+        <section class="summary-cards">
+          <div class="card">
+            <div class="card-top">
+              <span class="card-label">Total Events</span>
+              <span class="card-icon">◫</span>
+            </div>
+            <span class="card-value" id="totalEvents">0</span>
+            <span class="card-sub">last 24h</span>
+          </div>
+          <div class="card">
+            <div class="card-top">
+              <span class="card-label">Active Alerts</span>
+              <span class="card-icon">▲</span>
+            </div>
+            <span class="card-value" id="activeAlerts">0</span>
+            <span class="card-sub">unresolved</span>
+          </div>
+          <div class="card card-critical">
+            <div class="card-top">
+              <span class="card-label">Critical Incidents</span>
+              <span class="card-icon">⛔</span>
+            </div>
+            <span class="card-value" id="criticalIncidents">0</span>
+            <span class="card-sub">requires action</span>
+          </div>
+        </section>
 
-    <!-- Recent Incidents -->
-    <section class="table-section">
-      <h2>Recent Incidents</h2>
-      <table id="incidentsTable">
-        <thead>
-          <tr>
-            <th>Incident ID</th>
-            <th>Incident Type</th>
-            <th>Severity</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody id="incidentsTableBody">
-          <!-- rows injected by app.js -->
-        </tbody>
-      </table>
-    </section>
-  </main>
+        <!-- Severity breakdown -->
+        <section class="severity-section">
+          <h2><span class="h-bar"></span>Severity Breakdown</h2>
+          <div class="severity-cards">
+            <div class="severity-card critical">
+              <span class="severity-label">Critical</span>
+              <span class="severity-value" id="sevCritical">0</span>
+              <div class="severity-bar"><span id="sevCriticalBar"></span></div>
+            </div>
+            <div class="severity-card high">
+              <span class="severity-label">High</span>
+              <span class="severity-value" id="sevHigh">0</span>
+              <div class="severity-bar"><span id="sevHighBar"></span></div>
+            </div>
+            <div class="severity-card medium">
+              <span class="severity-label">Medium</span>
+              <span class="severity-value" id="sevMedium">0</span>
+              <div class="severity-bar"><span id="sevMediumBar"></span></div>
+            </div>
+            <div class="severity-card low">
+              <span class="severity-label">Low</span>
+              <span class="severity-value" id="sevLow">0</span>
+              <div class="severity-bar"><span id="sevLowBar"></span></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Recent Alerts -->
+        <section class="table-section">
+          <h2><span class="h-bar"></span>Recent Alerts</h2>
+          <div class="table-wrap">
+            <table id="alertsTable">
+              <thead>
+                <tr>
+                  <th>Alert ID</th>
+                  <th>Alert Type</th>
+                  <th>Severity</th>
+                  <th>Source IP</th>
+                </tr>
+              </thead>
+              <tbody id="alertsTableBody">
+                <!-- rows injected by app.js -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Recent Incidents -->
+        <section class="table-section">
+          <h2><span class="h-bar"></span>Recent Incidents</h2>
+          <div class="table-wrap">
+            <table id="incidentsTable">
+              <thead>
+                <tr>
+                  <th>Incident ID</th>
+                  <th>Incident Type</th>
+                  <th>Severity</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="incidentsTableBody">
+                <!-- rows injected by app.js -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
 
   <script src="app.js"></script>
 </body>
