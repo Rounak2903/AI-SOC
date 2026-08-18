@@ -12,29 +12,27 @@
   <div class="scanlines"></div>
 
   <div class="shell">
-    <!-- Sidebar -->
     <aside class="sidebar">
       <div class="brand">
         <span class="brand-mark">◆</span>
         <span class="brand-text">AI&#8209;SOC</span>
       </div>
       <nav class="sidenav">
-        <a class="nav-item active"><span class="nav-icon">▣</span>Overview</a>
-        <a class="nav-item"><span class="nav-icon">▲</span>Alerts</a>
-        <a class="nav-item"><span class="nav-icon">◉</span>Incidents</a>
-        <a class="nav-item"><span class="nav-icon">☰</span>Events</a>
-        <a class="nav-item"><span class="nav-icon">✦</span>AI Reports</a>
+        <a class="nav-item active" href="#overview" data-view="overview"><span class="nav-icon">▣</span>Overview</a>
+        <a class="nav-item" href="#alerts" data-view="alerts"><span class="nav-icon">▲</span>Alerts</a>
+        <a class="nav-item" href="#incidents" data-view="incidents"><span class="nav-icon">◉</span>Incidents</a>
+        <a class="nav-item" href="#events" data-view="events"><span class="nav-icon">☰</span>Events</a>
+        <a class="nav-item" href="#reports" data-view="reports"><span class="nav-icon">✦</span>AI Reports</a>
       </nav>
       <div class="sidebar-status">
         <div class="status-row">
           <span class="dot dot-live"></span>
-          <span>Feed dummy&#8209;data</span>
+          <span id="apiStatus">API standby</span>
         </div>
         <div class="status-row muted" id="clock">--:--:--</div>
       </div>
     </aside>
 
-    <!-- Main -->
     <div class="main">
       <header class="topbar">
         <div class="topbar-title">
@@ -42,108 +40,204 @@
           <p class="subtitle">Real&#8209;time threat monitoring &mdash; dashboard v1</p>
         </div>
         <div class="topbar-actions">
-          <span class="last-updated">Last sync <span id="lastSync">just now</span></span>
-          <button id="refreshBtn" class="refresh-btn">
+          <span class="last-updated">Last sync <span id="lastSync">never</span></span>
+          <button id="refreshBtn" class="refresh-btn" type="button">
             <span class="refresh-icon">⟳</span> Refresh
           </button>
         </div>
       </header>
 
       <main class="dashboard">
-        <!-- Top summary cards -->
-        <section class="summary-cards">
-          <div class="card">
-            <div class="card-top">
-              <span class="card-label">Total Events</span>
-              <span class="card-icon">◫</span>
-            </div>
-            <span class="card-value" id="totalEvents">0</span>
-            <span class="card-sub">last 24h</span>
-          </div>
-          <div class="card">
-            <div class="card-top">
-              <span class="card-label">Active Alerts</span>
-              <span class="card-icon">▲</span>
-            </div>
-            <span class="card-value" id="activeAlerts">0</span>
-            <span class="card-sub">unresolved</span>
-          </div>
-          <div class="card card-critical">
-            <div class="card-top">
-              <span class="card-label">Critical Incidents</span>
-              <span class="card-icon">⛔</span>
-            </div>
-            <span class="card-value" id="criticalIncidents">0</span>
-            <span class="card-sub">requires action</span>
-          </div>
-        </section>
+        <div id="dashboardNotice" class="dashboard-notice" role="status" aria-live="polite" hidden></div>
 
-        <!-- Severity breakdown -->
-        <section class="severity-section">
-          <h2><span class="h-bar"></span>Severity Breakdown</h2>
-          <div class="severity-cards">
-            <div class="severity-card critical">
-              <span class="severity-label">Critical</span>
-              <span class="severity-value" id="sevCritical">0</span>
-              <div class="severity-bar"><span id="sevCriticalBar"></span></div>
+        <div class="view active" data-view-panel="overview">
+          <section class="summary-cards">
+            <div class="card">
+              <div class="card-top">
+                <span class="card-label">Total Events</span>
+                <span class="card-icon">◫</span>
+              </div>
+              <span class="card-value" id="totalEvents">0</span>
+              <span class="card-sub">last 24h</span>
             </div>
-            <div class="severity-card high">
-              <span class="severity-label">High</span>
-              <span class="severity-value" id="sevHigh">0</span>
-              <div class="severity-bar"><span id="sevHighBar"></span></div>
+            <div class="card">
+              <div class="card-top">
+                <span class="card-label">Active Alerts</span>
+                <span class="card-icon">▲</span>
+              </div>
+              <span class="card-value" id="activeAlerts">0</span>
+              <span class="card-sub">unresolved</span>
             </div>
-            <div class="severity-card medium">
-              <span class="severity-label">Medium</span>
-              <span class="severity-value" id="sevMedium">0</span>
-              <div class="severity-bar"><span id="sevMediumBar"></span></div>
+            <div class="card card-critical">
+              <div class="card-top">
+                <span class="card-label">Critical Incidents</span>
+                <span class="card-icon">⛔</span>
+              </div>
+              <span class="card-value" id="criticalIncidents">0</span>
+              <span class="card-sub">requires action</span>
             </div>
-            <div class="severity-card low">
-              <span class="severity-label">Low</span>
-              <span class="severity-value" id="sevLow">0</span>
-              <div class="severity-bar"><span id="sevLowBar"></span></div>
-            </div>
-          </div>
-        </section>
+          </section>
 
-        <!-- Recent Alerts -->
-        <section class="table-section">
-          <h2><span class="h-bar"></span>Recent Alerts</h2>
-          <div class="table-wrap">
-            <table id="alertsTable">
-              <thead>
-                <tr>
-                  <th>Alert ID</th>
-                  <th>Alert Type</th>
-                  <th>Severity</th>
-                  <th>Source IP</th>
-                </tr>
-              </thead>
-              <tbody id="alertsTableBody">
-                <!-- rows injected by app.js -->
-              </tbody>
-            </table>
-          </div>
-        </section>
+          <section class="severity-section">
+            <h2><span class="h-bar"></span>Severity Breakdown</h2>
+            <div class="severity-cards">
+              <div class="severity-card critical">
+                <span class="severity-label">Critical</span>
+                <span class="severity-value" id="sevCritical">0</span>
+                <div class="severity-bar"><span id="sevCriticalBar"></span></div>
+              </div>
+              <div class="severity-card high">
+                <span class="severity-label">High</span>
+                <span class="severity-value" id="sevHigh">0</span>
+                <div class="severity-bar"><span id="sevHighBar"></span></div>
+              </div>
+              <div class="severity-card medium">
+                <span class="severity-label">Medium</span>
+                <span class="severity-value" id="sevMedium">0</span>
+                <div class="severity-bar"><span id="sevMediumBar"></span></div>
+              </div>
+              <div class="severity-card low">
+                <span class="severity-label">Low</span>
+                <span class="severity-value" id="sevLow">0</span>
+                <div class="severity-bar"><span id="sevLowBar"></span></div>
+              </div>
+            </div>
+          </section>
 
-        <!-- Recent Incidents -->
-        <section class="table-section">
-          <h2><span class="h-bar"></span>Recent Incidents</h2>
-          <div class="table-wrap">
-            <table id="incidentsTable">
-              <thead>
-                <tr>
-                  <th>Incident ID</th>
-                  <th>Incident Type</th>
-                  <th>Severity</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody id="incidentsTableBody">
-                <!-- rows injected by app.js -->
-              </tbody>
-            </table>
-          </div>
-        </section>
+          <section class="table-section">
+            <h2><span class="h-bar"></span>Recent Alerts</h2>
+            <div class="table-wrap">
+              <table id="alertsTable">
+                <thead>
+                  <tr>
+                    <th>Alert ID</th>
+                    <th>Alert Type</th>
+                    <th>Severity</th>
+                    <th>Source IP</th>
+                  </tr>
+                </thead>
+                <tbody id="alertsTableBody"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="table-section">
+            <h2><span class="h-bar"></span>Recent Incidents</h2>
+            <div class="table-wrap">
+              <table id="incidentsTable">
+                <thead>
+                  <tr>
+                    <th>Incident ID</th>
+                    <th>Incident Type</th>
+                    <th>Severity</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="incidentsTableBody"></tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+
+        <div class="view" data-view-panel="alerts">
+          <section class="table-section">
+            <h2><span class="h-bar"></span>Alerts</h2>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Alert ID</th>
+                    <th>Alert Type</th>
+                    <th>Severity</th>
+                    <th>Source IP</th>
+                  </tr>
+                </thead>
+                <tbody id="alertsViewBody"></tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+
+        <div class="view" data-view-panel="incidents">
+          <section class="table-section">
+            <h2><span class="h-bar"></span>Incidents</h2>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Incident ID</th>
+                    <th>Incident Type</th>
+                    <th>Severity</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="incidentsViewBody"></tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+
+        <div class="view" data-view-panel="events">
+          <section class="summary-cards">
+            <div class="card">
+              <div class="card-top">
+                <span class="card-label">Total Events</span>
+                <span class="card-icon">◫</span>
+              </div>
+              <span class="card-value" id="eventsTotalEvents">0</span>
+              <span class="card-sub">from backend</span>
+            </div>
+            <div class="card">
+              <div class="card-top">
+                <span class="card-label">Active Alerts</span>
+                <span class="card-icon">▲</span>
+              </div>
+              <span class="card-value" id="eventsActiveAlerts">0</span>
+              <span class="card-sub">from backend</span>
+            </div>
+            <div class="card card-critical">
+              <div class="card-top">
+                <span class="card-label">Critical Incidents</span>
+                <span class="card-icon">⛔</span>
+              </div>
+              <span class="card-value" id="eventsCriticalIncidents">0</span>
+              <span class="card-sub">from backend</span>
+            </div>
+          </section>
+
+          <section class="severity-section">
+            <h2><span class="h-bar"></span>Event Severity</h2>
+            <div class="severity-cards">
+              <div class="severity-card critical">
+                <span class="severity-label">Critical</span>
+                <span class="severity-value" id="eventsSevCritical">0</span>
+                <div class="severity-bar"><span id="eventsSevCriticalBar"></span></div>
+              </div>
+              <div class="severity-card high">
+                <span class="severity-label">High</span>
+                <span class="severity-value" id="eventsSevHigh">0</span>
+                <div class="severity-bar"><span id="eventsSevHighBar"></span></div>
+              </div>
+              <div class="severity-card medium">
+                <span class="severity-label">Medium</span>
+                <span class="severity-value" id="eventsSevMedium">0</span>
+                <div class="severity-bar"><span id="eventsSevMediumBar"></span></div>
+              </div>
+              <div class="severity-card low">
+                <span class="severity-label">Low</span>
+                <span class="severity-value" id="eventsSevLow">0</span>
+                <div class="severity-bar"><span id="eventsSevLowBar"></span></div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <div class="view" data-view-panel="reports">
+          <section class="empty-state">
+            <h2><span class="h-bar"></span>AI Reports</h2>
+            <p>AI report generation will be connected in a future phase.</p>
+          </section>
+        </div>
       </main>
     </div>
   </div>
